@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI destekli yüz tanıma ile otomatik yoklama sistemi">
+    <title>AI Yoklama Sistemi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="main-header">
+        <div class="header-left">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 36 36" fill="none">
+                        <rect width="36" height="36" rx="8" fill="#1d1d1f"/>
+                        <circle cx="18" cy="14" r="5" stroke="white" stroke-width="1.5" fill="none"/>
+                        <path d="M9 27c0-5 4-8 9-8s9 3 9 8" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+                        <path d="M24 13l2 2 4-4" stroke="#34c759" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <h1>AI Yoklama</h1>
+                    <span class="logo-subtitle">Yüz Tanıma Sistemi</span>
+                </div>
+            </div>
+        </div>
+        <div class="header-center">
+            <div class="status-badge" id="status-badge">
+                <span class="status-dot"></span>
+                <span class="status-text">Hazır</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="datetime" id="datetime">
+                <div class="date" id="current-date"></div>
+                <div class="time" id="current-time"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Left Panel: Camera -->
+        <section class="camera-panel" id="camera-panel">
+            <div class="panel-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                        <circle cx="12" cy="13" r="4"/>
+                    </svg>
+                    Kamera
+                </h2>
+                <div class="camera-controls">
+                    <button class="btn btn-primary" id="btn-camera" onclick="toggleCamera()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="23 7 16 12 23 17 23 7"/>
+                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                        </svg>
+                        <span>Kamerayı Başlat</span>
+                    </button>
+                </div>
+            </div>
+            <div class="camera-container" id="camera-container">
+                <div class="camera-placeholder" id="camera-placeholder">
+                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                        <circle cx="12" cy="13" r="4"/>
+                    </svg>
+                    <p>Kamerayı başlatmak için butona tıklayın</p>
+                    <span class="camera-hint">Yüz tanıma otomatik olarak başlayacaktır</span>
+                </div>
+                <video id="video" autoplay playsinline></video>
+                <canvas id="overlay-canvas"></canvas>
+            </div>
+            <div class="detection-info" id="detection-info">
+                <div class="info-item">
+                    <span class="info-label">Algılanan Yüz</span>
+                    <span class="info-value" id="face-count">0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Tanınan</span>
+                    <span class="info-value accent" id="recognized-count">0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">FPS</span>
+                    <span class="info-value mono" id="fps-counter">0</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Panel: Attendance -->
+        <section class="attendance-panel" id="attendance-panel">
+            <div class="panel-header">
+                <h2>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="8.5" cy="7" r="4"/>
+                        <polyline points="17 11 19 13 23 9"/>
+                    </svg>
+                    Yoklama Listesi
+                </h2>
+                <div class="stats-badges">
+                    <span class="badge badge-total" id="badge-total">0</span>
+                    <span class="badge badge-present" id="badge-present">0</span>
+                    <span class="badge badge-absent" id="badge-absent">0</span>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="search-bar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input type="text" id="search-input" placeholder="Öğrenci ara..." oninput="filterStudents()">
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar">
+                    <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                </div>
+                <span class="progress-text" id="progress-text">%0 Katılım</span>
+            </div>
+
+            <!-- Student List -->
+            <div class="student-list" id="student-list">
+                <div class="empty-state" id="empty-state">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    <p>Öğrenci verisi yüklenmedi</p>
+                    <span>/faces/ klasörüne fotoğraf ekleyin</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Toolbar -->
+    <footer class="toolbar" id="toolbar">
+        <div class="toolbar-left">
+            <button class="btn btn-glass" id="btn-reload" onclick="reloadFaces()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="23 4 23 10 17 10"/>
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                </svg>
+                <span>Yüzleri Yenile</span>
+            </button>
+        </div>
+        <div class="toolbar-center">
+            <button class="btn btn-success" id="btn-save" onclick="saveAttendance()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                    <polyline points="17 21 17 13 7 13 7 21"/>
+                    <polyline points="7 3 7 8 15 8"/>
+                </svg>
+                <span>Kaydet</span>
+            </button>
+            <button class="btn btn-accent" id="btn-pdf" onclick="downloadPDF()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+                <span>PDF İndir</span>
+            </button>
+        </div>
+        <div class="toolbar-right">
+            <button class="btn btn-danger" id="btn-reset" onclick="resetAttendance()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+                <span>Sıfırla</span>
+            </button>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
