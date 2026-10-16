@@ -1,176 +1,119 @@
-# 🎓 YoklamaX — AI Destekli Yoklama Sistemi
+# YoklamaX
 
-Yapay zekâ destekli yüz tanıma teknolojisi ile otomatik yoklama alan web tabanlı platform.
+Tek bilgisayarda kullanılabilen bir yoklama uygulaması. Öğrencileri listeden işaretleyebilir, kamera ile yüz eşleştirmeyi açabilir ve sonucu PDF olarak alabilirsiniz. Yoklama her değişiklikte yerel dosyaya yazılır; uygulamayı kapatıp açmak işaretlemeleri silmez.
 
-![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
-![Flask](https://img.shields.io/badge/Flask-3.1-green.svg)
-![DeepFace](https://img.shields.io/badge/DeepFace-AI-orange.svg)
-![OpenCV](https://img.shields.io/badge/OpenCV-4.13-red.svg)
+Python tarafında **Flask, OpenCV, DeepFace/Facenet ve ReportLab**, arayüzde HTML, CSS ve JavaScript kullanılır. Ayrı veritabanı sunucusu veya frontend derleme adımı yoktur.
 
----
+## Katkılar
 
-## 📋 Proje Özeti
+İlk proje ve özgün kaynak kodu **Erhan ([@Quecc](https://github.com/Quecc))** tarafından hazırlanmıştır. Projenin amacı, kullanım kararları ve bu sürümdeki geliştirme talepleri de proje sahibine aittir.
 
-YoklamaX, `/faces/` klasörüne eklenen öğrenci fotoğrafları ile yüz tanıma yaparak otomatik yoklama alan bir sistemdir. Minimum kurulum ile (sadece klasöre fotoğraf ekleyerek) hızlı ve pratik yoklama alınmasını sağlar.
+Bu sürüm **insan katkısı + yapay zekâ desteğiyle** geliştirilmiştir. Kodun yeniden düzenlenmesi, hata düzeltmeleri, arayüz çalışması, testler ve dokümantasyonda **OpenAI Codex** kullanılmıştır. Bu açıklama katkıların kaydını tutar; herhangi bir yapay zekâ tespit aracının sonucu hakkında iddia içermez.
 
-## 🚀 Özellikler
+## Başlatma
 
-- **Gerçek zamanlı yüz tanıma** — Kamera üzerinden anlık yüz tespiti ve eşleştirme
-- **Otomatik yoklama** — Tanınan öğrenciler otomatik olarak "var" işaretlenir
-- **Duplicate engelleme** — Aynı kişi tekrar tekrar sayılmaz
-- **Manuel override** — Tıklama ile yoklama durumu değiştirilebilir
-- **PDF rapor** — Tek tıkla profesyonel yoklama raporu (Türkçe karakter destekli)
-- **Yoklama kaydı** — JSON formatında kayıt
-- **Bounding box + isim etiketi** — Kamera görüntüsünde tanınan kişilerin isimleri
-- **Apple tarzı tasarım** — Beyaz, sade, lüks arayüz
+Python **3.12 / 64 bit** ile doğrulandı. Windows'ta PowerShell üzerinden:
 
-## 📁 Proje Yapısı
-
-```
-yoklamaX/
-├── app.py                    # Flask ana uygulama + API endpoint'leri
-├── face_manager.py           # Yüz encoding yükleme ve eşleştirme (DeepFace)
-├── pdf_generator.py          # PDF rapor oluşturma (ReportLab)
-├── requirements.txt          # Python bağımlılıkları
-├── faces/                    # Referans yüz fotoğrafları (kullanıcı ekler)
-│   └── 12345_ahmet.jpg       # Format: numara_isim.jpg
-├── attendance_records/       # Yoklama kayıtları (JSON)
-├── pdf_reports/              # Oluşturulan PDF raporları
-├── fonts/
-│   └── DejaVuSans.ttf        # Türkçe karakter destekli font
-├── static/
-│   ├── css/
-│   │   └── style.css         # Apple-inspired tasarım
-│   └── js/
-│       └── app.js            # Frontend: kamera, API, UI
-└── templates/
-    └── index.html            # Ana sayfa
+```powershell
+git clone https://github.com/Quecc/yoklamaX.git
+cd yoklamaX
+py -3.12 -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+Copy-Item .env.example .env  # Yalnız .env dosyanız henüz yoksa
+.venv\Scripts\python.exe app.py --mode manual
 ```
 
-## 🛠️ Kurulum
+Adres: **http://127.0.0.1:5050**. Başlangıçta liste boşsa kendi öğrenci listenizi veya fotoğraflarınızı ekleyin. Depoya öğrenci verisi, yüz fotoğrafı veya model ağırlığı dahil edilmez.
 
-### 1. Gereksinimler
+macOS/Linux'ta sanal ortamı `python3.12 -m venv .venv` ile oluşturun; komutlarda `.venv/bin/python` kullanın. `.env.example` dosyasını mevcut `.env` dosyanızın üzerine yazmadan kopyalayın.
 
-- Python 3.9+
-- Xcode Command Line Tools (macOS)
-- Web kamerası
+### Fotoğraflarla yüz tanıma
 
-### 2. Bağımlılıkları Kur
+1. `requirements-recognition.txt` bağımlılıklarını kurun.
+2. `faces/` klasörünü oluşturun ve izinli referans fotoğraflarınızı ekleyin. Dosya adı `numara_ad_soyad.png` biçiminde olmalı; numara yalnız rakamlardan oluşmalıdır. Ayrıntılar: [Fotoğraf ekleme](FOTOGRAF_EKLEME.md).
+3. Uygulamayı normal modda başlatın:
 
-```bash
-# macOS'ta Xcode CLI Tools gerekli
-xcode-select --install
-
-# Python paketlerini kur
-pip3 install --user flask opencv-python-headless numpy reportlab Pillow deepface tf-keras
+```powershell
+.venv\Scripts\python.exe -m pip install -r requirements-recognition.txt
+.venv\Scripts\python.exe app.py
 ```
 
-### 3. Öğrenci Fotoğrafları Ekle
+Kendi fotoğraf klasörünüz zaten varsa `.env` içindeki `YOKLAMAX_FACES_DIR` değerini o klasöre ayarlayın. Mevcut kurulumun yerel ayarları korunur.
 
-`faces/` klasörüne öğrenci fotoğrafları ekleyin:
+İlk yüz tanıma kullanımı Facenet ağırlıklarını indirir; sonraki açılışlarda `.models/` önbelleğini kullanır. Fotoğraflar harici bir tanıma servisine gönderilmez. Model hazır değilse manuel işaretleme ve kamera önizlemesi kullanılabilir.
 
-```
-faces/
-├── 12345_ahmet_yilmaz.jpg
-├── 12346_elif_kaya.png
-└── 12347_mehmet_demir.jpg
-```
+Windows'ta TensorFlow kurulumu uzun dosya yolu hatası verirse projeyi kısa bir yolda kurun. Mevcut uzun yolda, **Y: boşsa**, geçici eşleme de kullanılabilir:
 
-**Dosya adı formatı:** `numara_isim.jpg`
-- `_` ile ayrılan ilk kısım öğrenci numarası
-- Geri kalanı öğrenci adı
-- Desteklenen formatlar: `.jpg`, `.jpeg`, `.png`, `.bmp`, `.webp`
-
-### 4. Sunucuyu Başlat
-
-```bash
-python3 app.py
+```powershell
+subst Y: (Get-Location).Path
+Y:\.venv\Scripts\python.exe -m pip install -r requirements-recognition.txt
+subst Y: /D
 ```
 
-Tarayıcıda açın: **http://localhost:5050**
+Python 3.14 ile yüz tanıma bağımlılıkları doğrulanmadı. Bazı Windows kurulumlarında Microsoft Visual C++ Redistributable gerekebilir.
 
-## 🔌 API Endpoint'leri
+### Fotoğrafsız manuel liste
 
-| Endpoint | Method | Açıklama |
+`data/live/students.json` dosyasına kendi öğrenci listenizi yazın. Dosya bir JSON dizisidir; her kayıtta metin türünde `id` (1–64 rakam) ve `name` (1–200 karakter) bulunur. Numaralar benzersiz olmalıdır. `[]` geçerli bir boş listedir.
+
+`python app.py --mode manual` bu dosyayı okur. Listeyi değiştirdikten sonra **Listeyi yenile** düğmesini kullanın. Geçersiz bir dosya mevcut yoklamayı silmez.
+
+Mevcut `--demo` seçeneği, önceki sürümden gelen üç kurmaca kaydı `data/demo/` altında açar; normal başlangıçta kullanılmaz. Bu düzenlemede yeni kişi veya yüz verisi üretilmedi.
+
+## Günlük kullanım
+
+1. Öğrenci listesini kontrol edin. Fotoğraf veya liste değiştiyse **Listeyi yenile** kullanın.
+2. **Kamerayı başlat** düğmesine basıp tarayıcıdan kamera izni verin. Yüz tanıma hazırsa eşleşen kişiler “Var” olur.
+3. Bir öğrencinin satırına dokunarak durumu elle değiştirin. Elle “Yok” yaptığınız öğrenci aynı oturumda kamera tarafından tekrar “Var” yapılmaz.
+4. **Yoklamayı arşivle** bir arşiv kopyası oluşturur. **PDF indir** o anki yoklamanın raporunu verir.
+5. **Yeni yoklama** mevcut oturumu önce arşivler, sonra yeni listeyi açar. Sayfayı yenilemek yeni yoklama başlatmaz.
+
+Kamera izni için adresi `localhost` veya `127.0.0.1` üzerinden açın. Kamera durdurulduğunda medya akışı kapatılır. Yanlış eşleşmeleri listeden düzeltin.
+
+## Ayarlar ve kayıtlar
+
+`python app.py`, proje dizinindeki `.env` dosyasını okur. Göreli yollar proje dizinine göre çözülür.
+
+| Ayar | Varsayılan | Kullanımı |
 |---|---|---|
-| `/` | GET | Ana sayfa |
-| `/api/recognize` | POST | Frame gönder → yüz tanıma |
-| `/api/attendance` | GET | Yoklama listesi |
-| `/api/attendance/toggle` | POST | Manuel yoklama değişikliği |
-| `/api/attendance/reset` | POST | Yoklamayı sıfırla |
-| `/api/attendance/save` | POST | Yoklamayı JSON'a kaydet |
-| `/api/attendance/pdf` | GET | PDF rapor indir |
-| `/api/students` | GET | Kayıtlı öğrenci listesi |
-| `/api/reload-faces` | POST | Yüzleri yeniden yükle |
+| `YOKLAMAX_MODE` | `recognition` | `manual` veya `recognition` |
+| `YOKLAMAX_FACES_DIR` | `faces` | Özel referans fotoğraf klasörü |
+| `YOKLAMAX_DATA_DIR` | `data/live` | Yoklama dosyalarının dizini |
+| `YOKLAMAX_PORT` | `5050` | `--port` ile de değiştirilebilir |
+| `YOKLAMAX_SECRET_KEY` | Başlangıçta rastgele | İsteğe bağlı kalıcı oturum anahtarı; Git'e eklemeyin |
+| `YOKLAMAX_DEMO` | `0` | `1` mevcut kurmaca demo listesini açar |
+| `DEEPFACE_HOME` | `.models` | Model önbelleğinin kökü |
 
-## 🔧 Teknik Yapı
+`data/live/current.json` aktif oturumu, `data/live/records/` arşivleri tutar. Yeni kurulumda dizinler otomatik oluşturulur; migration veya veritabanı sıfırlama komutu gerekmez. Bozuk veya bilinmeyen sürümlü kayıt dosyası korunur ve başlangıç durdurulur; yedekten geri alınmalıdır.
 
-- **Backend:** Python + Flask
-- **Görüntü İşleme:** OpenCV (Haar Cascade ile yüz tespiti)
-- **Yüz Tanıma:** DeepFace (Facenet modeli, cosine distance)
-- **PDF:** ReportLab (Türkçe DejaVuSans font)
-- **Frontend:** Vanilla HTML/CSS/JS
-- **Tasarım:** Apple-inspired minimal beyaz tema
+Listeyi yenilemek mevcut işaretlemeleri korur. Listeden kaldırılan kişiler o oturumda tutulur; **Yeni yoklama** güncel listeyi esas alır. Dosya yazımı başarısız olursa bellekteki eski yoklama da korunur. Aynı veri dizinini birden fazla sunucu işlemiyle açmayın.
 
-## 📊 Çalışma Mantığı
+## Kodu inceleme
 
-```
-1. Kamera açılır → gerçek zamanlı görüntü alınır
-2. Her 600ms'de frame backend'e gönderilir
-3. OpenCV ile yüzler tespit edilir
-4. DeepFace ile yüz embedding'i hesaplanır
-5. Bilinen yüzlerle cosine distance karşılaştırması yapılır
-6. Eşleşme bulunursa → öğrenci "var" işaretlenir
-7. Duplicate kontrolü → aynı kişi tekrar sayılmaz
-8. Bounding box + isim etiketi ekrana çizilir
+[Kod rehberi](KOD_REHBERI.md), dosyaların görevlerini ve okunacak sırayı açıklar. [Akış şemaları](AKIS_SEMASI.md), uygulamanın başlangıcını, kamera işlemini ve kayıt akışını gösterir.
+
+VS Code'da `YoklamaX.code-workspace` dosyasını açabilirsiniz. Python/debugpy eklentileriyle **F5**, 5051 portunda ayrı `data/debug/` kayıtlarını kullanır. Böylece 5050'deki normal oturumla çakışmaz.
+
+## Kontroller
+
+```powershell
+.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+.venv\Scripts\python.exe -m unittest discover -s tests -v
+.venv\Scripts\python.exe -m ruff check .
+.venv\Scripts\python.exe -m compileall -q app.py attendance_store.py face_manager.py pdf_generator.py tests
+node --check app.js
+node --test tests/frontend.test.js
+.venv\Scripts\python.exe -m pip check
 ```
 
----
+Python biçimlendirmesi için `python -m ruff format app.py attendance_store.py face_manager.py pdf_generator.py` kullanılabilir. Testlerde geçici dizinler, sahte model yanıtları ve kimseyi temsil etmeyen piksel dizileri kullanılır; kişisel fotoğraf veya kamera gerekmez. Ayrı statik tip kontrolü ya da frontend build komutu yapılandırılmamıştır.
 
-## 📜 Implementation Plan
+İsteğe bağlı `python scripts/check_recognition.py` gerçek model kurulumunu sınar; kimlik doğruluğu veya fiziksel kamera testi değildir. Bağımlılık denetimi: `python -m pip_audit`. Son kontrol sonuçları: [Doğrulama kaydı](VERIFICATION.md).
 
-### Amaç
-Minimum kurulum ile (sadece klasöre fotoğraf ekleyerek) hızlı ve pratik bir yoklama sistemi oluşturmak.
+## Sınırlar
 
-### Mimari Kararlar
+Sunucu yalnız yerel bilgisayara açıktır; kullanıcı hesabı ve çok kullanıcılı yetkilendirme bulunmaz. Yerel Host kontrolü, aynı kaynak denetimi ve POST isteklerinde oturuma bağlı CSRF doğrulaması uygulanır. Öğrenci dosyaları genel statik dizinden sunulmaz.
 
-1. **DeepFace tercih edildi** — `face_recognition` (dlib) C++ derleme gerektirdiği için, saf Python olan DeepFace kullanıldı
-2. **Facenet modeli** — Hafif, hızlı ve doğru embedding modeli
-3. **OpenCV Haar Cascade** — Hızlı yüz tespiti için (DNN modeline göre daha az kaynak)
-4. **Cosine Distance** — Yüz eşleştirme metriği (tolerance: 0.35)
-5. **Client-side kamera** — Kamera tarayıcıda açılır, frame'ler base64 olarak backend'e POST edilir
-6. **Bellekte yoklama** — Oturum bazlı, JSON'a kaydedilebilir
-7. **ReportLab + DejaVuSans** — Türkçe karakter destekli PDF çıktısı
+Eşleştirme, cosine uzaklığı ≤ 0.35 ve en yakın ikinci kişiye en az 0.02 fark koşullarını kullanır. Uzaklık bir doğruluk yüzdesi değildir. Göz yerleşimi kontrolü giysilerin yüz sanılmasını azaltır; kapalı göz, yan açı ve zayıf ışıkta gerçek yüzü de atlayabilir. Canlılık kontrolü yoktur; fotoğraf/video ile yanıltmaya karşı güvence verilmez.
 
-### Akış Diyagramı
-
-```
-┌─────────────┐     base64 frame      ┌──────────────┐
-│   Tarayıcı  │ ──────────────────────►│  Flask API   │
-│   (Kamera)  │                        │  /recognize  │
-│             │◄──────────────────────  │              │
-│  Canvas +   │  faces + attendance    │  FaceManager │
-│  Bounding   │                        │  .recognize()│
-│  Box çiz    │                        └──────┬───────┘
-└─────────────┘                               │
-                                              ▼
-                                     ┌────────────────┐
-                                     │  /faces/ dir   │
-                                     │  (embeddings)  │
-                                     └────────────────┘
-```
-
-### Dosya Açıklamaları
-
-| Dosya | Satır | Açıklama |
-|---|---|---|
-| `app.py` | ~263 | Flask sunucu, 8 API endpoint, yoklama state yönetimi |
-| `face_manager.py` | ~200 | DeepFace ile yüz yükleme/eşleştirme, Haar Cascade tespiti |
-| `pdf_generator.py` | ~170 | ReportLab PDF, zebra striping, renk kodlu durum |
-| `style.css` | ~580 | Apple-inspired minimal beyaz tema, responsive |
-| `app.js` | ~370 | Kamera, frame capture, bounding box çizimi, toast |
-| `index.html` | ~195 | Tek sayfa: kamera paneli + yoklama listesi + toolbar |
-
----
-
-*Bu proje AI destekli otomatik yoklama almak için geliştirilmiştir.*
+Fotoğraflar, kayıtlar, `.env`, sanal ortam ve model önbelleği Git dışında tutulur. Eski sürümlerde yayımlanmış dosyalar Git geçmişinde bulunabilir; bu çalışma geçmişi yeniden yazmaz. DejaVu Sans fontunun lisansı [FONT-LICENSE.txt](FONT-LICENSE.txt) içindedir.

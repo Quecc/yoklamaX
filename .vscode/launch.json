@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "YoklamaX: kamera ve yüz tanıma",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/app.py",
+      "args": ["--port", "5051"],
+      "cwd": "${workspaceFolder}",
+      "python": "${workspaceFolder}/.venv/Scripts/python.exe",
+      "console": "integratedTerminal",
+      "env": {"YOKLAMAX_DATA_DIR":"data/debug","YOKLAMAX_MODE":"recognition","YOKLAMAX_DEMO":"0"}
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "folders": [{"path": "."}],
+  "settings": {
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+    "files.exclude": {"**/__pycache__": true, "**/.ruff_cache": true},
+    "search.exclude": {"**/.venv": true, "**/.models": true}
+  }
+}

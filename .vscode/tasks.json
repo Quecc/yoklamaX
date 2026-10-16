@@ -1,0 +1,8 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {"label":"YoklamaX: kamera ve yüz tanıma (5051)", "type":"process", "command":"${workspaceFolder}/.venv/Scripts/python.exe", "args":["app.py","--port","5051"], "options":{"cwd":"${workspaceFolder}","env":{"YOKLAMAX_DATA_DIR":"data/debug","YOKLAMAX_MODE":"recognition","YOKLAMAX_DEMO":"0"}}, "problemMatcher":[]},
+    {"label":"YoklamaX: backend testleri", "type":"process", "command":"${workspaceFolder}/.venv/Scripts/python.exe", "args":["-m","unittest","discover","-s","tests","-v"], "options":{"cwd":"${workspaceFolder}"}, "problemMatcher":[]},
+    {"label":"YoklamaX: arayüz testleri", "type":"process", "command":"node", "args":["--test","tests/frontend.test.js"], "options":{"cwd":"${workspaceFolder}"}, "problemMatcher":[]}
+  ]
+}
